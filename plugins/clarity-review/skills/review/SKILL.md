@@ -40,11 +40,14 @@ comment, or docstring.
 
 ## Output
 
-- If `mcp__github_inline_comment__create_inline_comment` is available, post
-  each finding as an inline comment on its exact line.
-- Otherwise, post one comment listing every finding with `file:line`
-  references.
-- Open the summary with a one-line tally, e.g. "2 Important, 3 Nit." If
-  nothing was found, say so as the first line — don't pad with commentary.
-- Skip draft pull requests, and skip pull requests that already have a
-  Claude comment for the current commit.
+1. Build the full list of findings before posting anything. Do not post
+   this list anywhere — it's only for your own bookkeeping.
+2. For each finding, call `mcp__github_inline_comment__create_inline_comment`
+   with `confirmed: true`, citing the exact file and line. Do not put
+   finding details in the summary comment — only inline.
+3. After all inline comments are posted, post one summary comment with a
+   one-line tally, e.g. "2 Important, 3 Nit."
+4. If nothing was found, post only the summary comment, and say so as its
+   first line — don't pad with commentary.
+5. Skip draft pull requests, and skip pull requests that already have a
+   Claude comment for the current commit.
