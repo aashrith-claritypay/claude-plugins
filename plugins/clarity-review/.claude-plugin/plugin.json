@@ -1,7 +1,7 @@
 {
   "name": "clarity-review",
   "description": "ClarityPay baseline code review policy for GitHub pull requests",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": {
     "name": "ClarityPay Engineering"
   }

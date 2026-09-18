@@ -1,6 +1,6 @@
 ---
 description: Reviews a GitHub pull request against ClarityPay's baseline correctness and security bar. Use when asked to review a PR, review this, or check this change for bugs.
-allowed-tools: Read, Grep, Glob, LS, mcp__github_inline_comment__create_inline_comment, mcp__github_comment__update_claude_comment, Bash(gh api graphql:*), Bash(gh pr view:*), Bash(gh repo view:*)
+allowed-tools: Read, Grep, Glob, LS, mcp__github_inline_comment__create_inline_comment, mcp__github_comment__update_claude_comment, Bash(gh api graphql:*), Bash(gh pr view:*), Bash(gh repo view:*), Bash(gh pr diff:*)
 ---
 
 # ClarityPay PR review
@@ -45,8 +45,17 @@ gh api graphql -f query='
 
 ## Step 1: review
 
-Review the diff for this pull request for correctness and security bugs.
-Read surrounding code as needed — do not judge changed lines in isolation.
+Get the authoritative file list yourself — don't rely only on whatever diff
+context you were handed, it can be wrong for newly-added files:
+
+```
+gh pr diff --name-only
+```
+
+Read every file that command lists, including new files, deploy/build
+scripts, and docs — not just the files a pre-built context happened to
+surface. Then review the diff for correctness and security bugs. Read
+surrounding code as needed — do not judge changed lines in isolation.
 
 ### Repo-specific overrides
 
@@ -87,21 +96,25 @@ comment, or docstring.
    comment must follow this exact structure, in order, and nothing else:
 
    ```
-   **[Important|Nit|Pre-existing] <one-line description of the bug>**
+   **[Important|Nit|Pre-existing] <title, ≤12 words>**
 
-   <what's wrong, citing the specific code>
+   <1-2 sentences: what's wrong, naming the specific code>
 
-   **Impact:** <the concrete failure this causes — what breaks, what data
-   is affected, under what conditions>
+   **Impact:** <1 sentence: the concrete failure — what breaks, under
+   what condition>
 
-   **Fix:** <a specific, actionable fix — not "consider handling this
-   better">
+   **Fix:** <1 sentence, imperative: the specific change to make>
    ```
 
-   Skip a section only when it does not apply (e.g. a Nit with no
-   meaningful "Impact" beyond readability can omit that line, but never
-   omit "Fix"). Be crisp: no hedging, no restating the diff, no filler
-   sentences.
+   Hard caps, no exceptions: title ≤12 words, body ≤2 sentences, Impact
+   and Fix ≤1 sentence each. Omit "Impact" only for a Nit with no real
+   consequence beyond readability — never omit "Fix".
+
+   Banned: hedging ("might", "could potentially", "worth considering"),
+   restating the diff back to the author, explaining what the code does
+   before saying what's wrong with it, and citing more than one
+   supporting line unless every one is load-bearing to the bug itself.
+   State the bug, its consequence, its fix. Nothing else.
 3. Do not put finding details in the summary comment — only inline.
 4. After all inline comments are posted, post one summary comment with
    exactly this structure:
