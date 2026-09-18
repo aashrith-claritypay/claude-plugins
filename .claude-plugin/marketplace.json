@@ -1,0 +1,14 @@
+{
+  "name": "clarity-plugins",
+  "owner": {
+    "name": "ClarityPay Engineering"
+  },
+  "description": "ClarityPay's shared Claude Code plugins for GitHub Actions PR review automation.",
+  "plugins": [
+    {
+      "name": "clarity-review",
+      "source": "./plugins/clarity-review",
+      "description": "ClarityPay's baseline PR review policy: severity calibration, verification bar, and inline-comment output."
+    }
+  ]
+}
