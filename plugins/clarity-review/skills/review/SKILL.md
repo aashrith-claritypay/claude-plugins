@@ -103,9 +103,25 @@ comment, or docstring.
    omit "Fix"). Be crisp: no hedging, no restating the diff, no filler
    sentences.
 3. Do not put finding details in the summary comment — only inline.
-4. After all inline comments are posted, post one summary comment with a
-   one-line tally, e.g. "2 Important, 3 Nit."
-5. If nothing was found, post only the summary comment, and say so as its
-   first line — don't pad with commentary.
+4. After all inline comments are posted, post one summary comment with
+   exactly this structure:
+
+   ```
+   ## Review summary
+
+   **State:** <"Blocking — N Important issue(s), do not merge as-is" if
+   any Important findings exist, otherwise "No blocking issues">
+
+   **Tally:** N Important, N Nit, N Pre-existing
+
+   **Scope:** <files actually reviewed, comma-separated> · effort=<level>
+   · model=<model> · <"REVIEW.md applied" or "no REVIEW.md in repo">
+   ```
+
+   No other prose in the summary comment. Findings live inline; this
+   comment is state + scope only.
+5. If nothing was found, use the same structure — **State:** "No blocking
+   issues", **Tally:** "0 Important, 0 Nit, 0 Pre-existing" — don't pad
+   with extra commentary.
 6. Skip draft pull requests, and skip pull requests that already have a
    Claude comment for the current commit.
