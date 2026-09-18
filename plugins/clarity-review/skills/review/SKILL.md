@@ -5,6 +5,12 @@ allowed-tools: Read, Grep, Glob, LS, mcp__github_inline_comment__create_inline_c
 
 # ClarityPay PR review
 
+Most of this codebase is written with AI assistance. The job here is to be
+the eyes on that code before a human's — exhaustive coverage of every
+changed file, not a sample of the most-suspicious-looking ones. Speed is
+not the goal; catching what AI-generated code specifically tends to get
+wrong is.
+
 ## Step 0: unresolved-thread gate (hard check, run first)
 
 Before reading any code, check whether every existing review comment thread
@@ -63,6 +69,32 @@ Read every file that command lists, including new files, deploy/build
 scripts, and docs — not just the files a pre-built context happened to
 surface. Then review the diff for correctness and security bugs. Read
 surrounding code as needed — do not judge changed lines in isolation.
+
+### AI-authored-code patterns to specifically check for
+
+These are failure modes common to AI-written code, not just generic bugs —
+check for each of them on every file, not opportunistically:
+
+1. **Hallucinated APIs.** A call to a function, method, or parameter that
+   doesn't actually exist, or doesn't match the real signature. Verify
+   against the actual imported module/library/class, not against how
+   plausible the call looks.
+2. **Comments and docstrings that describe intended behavior the code
+   doesn't actually have.** Never trust a comment's claim about what the
+   code does — verify it against the implementation. A confident, well-
+   written comment describing the wrong behavior is more dangerous than
+   no comment at all, because it reads as documentation.
+3. **Reinvented functionality that already exists elsewhere in the repo.**
+   Before accepting new logic as necessary, grep for an existing
+   equivalent. AI generation frequently reimplements something it didn't
+   know was already there, sometimes worse.
+4. **Tests that can't actually fail.** Trivial assertions, a mock that
+   replaces the exact thing under test, or a test suite with no negative/
+   edge case for a change that obviously needs one. Coverage that exists
+   in name but verifies nothing.
+5. **Dead code, unreachable branches, or leftover scaffolding** from
+   iterative generation — a condition that can never be true, an import
+   or variable nothing uses, a function nothing calls.
 
 ### Repo-specific overrides
 
@@ -167,7 +199,12 @@ needs the bug, not a review of the reviewer's feelings about the code.
    say it plainly; if you're not sure, say exactly what you're unsure of
    instead of hedging around it).
 3. Do not put finding details in the summary comment — only inline.
-4. After all inline comments are posted, post one summary comment with
+4. Before posting the summary, check whether this PR bundles multiple
+   independent concerns — changes with no code dependency between them
+   that could ship as separate PRs. Only worth noting if the groupings
+   are real and independent, not for a PR that's already one coherent
+   change.
+5. After all inline comments are posted, post one summary comment with
    exactly this structure:
 
    ```
@@ -180,12 +217,15 @@ needs the bug, not a review of the reviewer's feelings about the code.
 
    **Scope:** <files actually reviewed, comma-separated> · effort=<level>
    · model=<model> · <"REVIEW.md applied" or "no REVIEW.md in repo">
+
+   **Split suggestion:** <omit this line entirely if the PR is one
+   coherent change; otherwise name the independent groupings of files>
    ```
 
    No other prose in the summary comment. Findings live inline; this
-   comment is state + scope only.
-5. If nothing was found, use the same structure — **State:** "No blocking
+   comment is state + scope (+ split suggestion, when applicable) only.
+6. If nothing was found, use the same structure — **State:** "No blocking
    issues", **Tally:** "0 Important, 0 Nit, 0 Pre-existing" — don't pad
    with extra commentary.
-6. Skip draft pull requests, and skip pull requests that already have a
+7. Skip draft pull requests, and skip pull requests that already have a
    Claude comment for the current commit.
